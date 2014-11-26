@@ -79,7 +79,7 @@ module Parser = // Exposing readStreamWithHeaders and readStreamWithoutHeaders.
           match b with
           | Some s -> { a with Text=body; Attachments=readStreamWithoutHeaders (new StringReader (body)) b }
           | None   -> match a.OriginalEncoding.ToLower() with
-                      | "base64" -> { a with Bytes=decodeBase64 (body.Replace(nl, "")) }
+                      | "base64" -> { a with IsByteArray=true; Bytes=decodeBase64 (body.Replace(nl, "")) }
                       | "quoted-printable" -> { a with Text=decodeQP body }
                       | _ -> { a with Text=body }
       let read tr =
