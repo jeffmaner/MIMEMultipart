@@ -1,5 +1,6 @@
 ﻿namespace MIMEMultipart
 
+open Ancillary   // For (/=).
 open AttachmentR // For AttachmentR.
 open Generator   // For generateAttachmentString.
 open Parser      // For readStreamWithHeaders and readStreamWithoutHeaders.
@@ -35,13 +36,12 @@ type Attachment() =
         ; Text=a.Text }
 
     static let readStream tr b =
-        let (/=) = (<>) // A la Haskell. I think it's prettier.
         let f = match b with
                 | Some s -> readStreamWithoutHeaders
                 | None   -> readStreamWithHeaders
          in seq { for r in f tr b do
-                    if r.ContentType /= "" then
-                      yield toAttachment r }
+                    if r.ContentType /= "" // TODO: I don't understand why this is not filtering...
+                    then yield toAttachment r }
 
     member a.GenerateAttachmentString () =
       generateAttachmentString (new Random())
@@ -59,7 +59,8 @@ type Attachment() =
       readStream textReader (Some boundary)
 
     member a.Attachments
-      with get() = Seq.map toAttachment attachments
+      with get() = Seq.map toAttachment <| // TODO: This filter should be unnecessary...
+                   Seq.filter (fun a -> a.ContentType /= "") attachments
        and set v = attachments <- Seq.map toRecord v
     member a.Bytes with get() = bytes and set v = bytes <- v
     member a.ContentID with get() = contentID and set v = contentID <- v
