@@ -1,5 +1,6 @@
 ﻿using MIMEMultipart;
 using System;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 
@@ -9,7 +10,7 @@ namespace UsageTest
 	{
 		public static void TestParse()
 		{
-			var file = File.OpenText(@"C:\Users\xyz\Documents\Projects\rn\mime_generator.out");
+			var file = File.OpenText(ConfigurationManager.AppSettings["ParserTesterInputComplex"]);
 			var xs = Attachment.ReadStreamWithHeaders(file);
 
 			foreach (var x in xs)
@@ -18,7 +19,7 @@ namespace UsageTest
 
 		private static void SaveAttachment(Attachment a)
 		{
-			const string p = @"C:\Users\xyz\Documents\Projects\rn\";
+			var p = ConfigurationManager.AppSettings["ParserTesterOutput"];
 			Func<Attachment, string> fileName = x =>
 				Path.Combine(p, Path.ChangeExtension(Path.GetRandomFileName(),
 													  FileExtension(x)));

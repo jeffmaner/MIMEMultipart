@@ -1,6 +1,7 @@
 ﻿using MIMEMultipart;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -26,7 +27,7 @@ namespace UsageTest
 			nodeA1.ContentType = "image/jpg";
 			nodeA1.IsByteArray = true;
 			nodeA1.OriginalEncoding = "Base64";
-			nodeA1.Bytes = File.ReadAllBytes(@"C:\Users\xyz\Pictures\JPEG_example_JPG_RIP_025.jpg");
+			nodeA1.Bytes = File.ReadAllBytes(ConfigurationManager.AppSettings["GeneratorTesterInputComplexNodeA1"]);
 
 			var nodeA2 = new Attachment();
 
@@ -34,13 +35,13 @@ namespace UsageTest
 			nodeA2a.ContentType = "Application/XML";
 			nodeA2a.OriginalEncoding = "binary";
 			nodeA2a.ContentID = contentIDBase + ".1";
-			nodeA2a.Text = File.ReadAllText(@"C:\Users\xyz\Documents\Projects\rn\samplePart1.xml");
+			nodeA2a.Text = File.ReadAllText(ConfigurationManager.AppSettings["GeneratorTesterInputComplexNodeA2a"]);
 
 			var nodeA2b = new Attachment();
 			nodeA2b.ContentType = "text/pdf";
 			nodeA2b.IsByteArray = true;
 			nodeA2b.OriginalEncoding = "Base64";
-			nodeA2b.Bytes = File.ReadAllBytes(@"C:\Users\xyz\Documents\Projects\rn\Invoice Import - PIDX RNIF.PDF");
+			nodeA2b.Bytes = File.ReadAllBytes(ConfigurationManager.AppSettings["GeneratorTesterInputComplexNodeA2b"]);
 
 			nodeA2.ContentType = "multipart/related";
 			nodeA2.Attachments = new[] { nodeA2a, nodeA2b };
@@ -49,7 +50,7 @@ namespace UsageTest
 			nodeA3.ContentType = "Application/XML";
 			nodeA3.OriginalEncoding = "binary";
 			nodeA3.ContentID = contentIDBase + ".2";
-			nodeA3.Text = File.ReadAllText(@"C:\Users\xyz\Documents\Projects\rn\samplePart2.xml");
+			nodeA3.Text = File.ReadAllText(ConfigurationManager.AppSettings["GeneratorTesterInputComplexNodeA3"]);
 
 			nodeA.ContentType = "multipart/related";
 			nodeA.Attachments = new[] { nodeA1, nodeA2, nodeA3 };
@@ -60,13 +61,13 @@ namespace UsageTest
 			nodeB1.ContentType = "image/jpg";
 			nodeB1.IsByteArray = true;
 			nodeB1.OriginalEncoding = "Base64";
-			nodeB1.Bytes = File.ReadAllBytes(@"C:\Users\xyz\Pictures\mini.jpg");
+			nodeB1.Bytes = File.ReadAllBytes(ConfigurationManager.AppSettings["GeneratorTesterInputComplexNodeB1"]);
 
 			var nodeB2 = new Attachment();
 			nodeB2.ContentType = "Application/XML";
 			nodeB2.OriginalEncoding = "binary";
 			nodeB2.ContentID = contentIDBase + ".3";
-			nodeB2.Text = File.ReadAllText(@"C:\Users\xyz\Documents\Projects\rn\samplePart3.xml");
+			nodeB2.Text = File.ReadAllText(ConfigurationManager.AppSettings["GeneratorTesterInputComplexNodeB2"]);
 
 			nodeB.ContentType = "multipart/related";
 			nodeB.Attachments = new[] { nodeB1, nodeB2 };
@@ -75,12 +76,12 @@ namespace UsageTest
 			root.ContentType = "Multipart/related";
 			root.Attachments = new[] { nodeA, nodeB };
 
-			File.WriteAllText(@"C:\Users\xyz\Documents\Projects\rn\mime_generator.out", root.GenerateAttachmentString());
+			File.WriteAllText(ConfigurationManager.AppSettings["GeneratorTesterOutputComplex"], root.GenerateAttachmentString());
 		}
 
 		private static void TestSimpleStructure()
 		{
-			const string path = @"C:\Users\xyz\Documents\Projects\rn";
+			var path = ConfigurationManager.AppSettings["GeneratorTesterInputSimple"];
 
 			var ns = new[] { 1, 2, 3, 4 };
 			var ps = ns.Select(n => String.Format(@"{0}\samplePart{1}.xml", path, n));
@@ -88,12 +89,9 @@ namespace UsageTest
 			var nfs = ns.Zip(files, (n, s) => new Tuple<int, string>(n, s));
 			var attachments = nfs.Select(x => new Attachment
 			{
-				ContentType = "Application/XML"
-			,
-				ContentID = DateTime.Now.Ticks.ToString() + "." + x.Item1.ToString()
-			,
-				OriginalEncoding = "binary"
-			,
+				ContentType = "Application/XML",
+				ContentID = DateTime.Now.Ticks.ToString() + "." + x.Item1.ToString(),
+				OriginalEncoding = "binary",
 				Text = x.Item2
 			});
 
