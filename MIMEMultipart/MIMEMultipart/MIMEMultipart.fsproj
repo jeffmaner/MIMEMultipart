@@ -42,6 +42,7 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Ancillary.fs" />
     <Compile Include="AttachmentR.fs" />
     <Compile Include="Generator.fs" />
     <Compile Include="Parser.fs" />
