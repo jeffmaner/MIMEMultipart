@@ -35,7 +35,7 @@ type Attachment() =
         ; Text=a.Text }
 
     static let readStream tr b =
-        let (/=) = (<>)
+        let (/=) = (<>) // A la Haskell. I think it's prettier.
         let f = match b with
                 | Some s -> readStreamWithoutHeaders
                 | None   -> readStreamWithHeaders
@@ -58,7 +58,9 @@ type Attachment() =
     static member ReadStreamWithoutHeaders textReader boundary =
       readStream textReader (Some boundary)
 
-    member a.Attachments with get() = Seq.map toAttachment attachments and set v = attachments <- Seq.map toRecord v
+    member a.Attachments
+      with get() = Seq.map toAttachment attachments
+       and set v = attachments <- Seq.map toRecord v
     member a.Bytes with get() = bytes and set v = bytes <- v
     member a.ContentID with get() = contentID and set v = contentID <- v
     member a.ContentType with get() = contentType and set v = contentType <- v

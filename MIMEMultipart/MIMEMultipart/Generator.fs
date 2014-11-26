@@ -1,19 +1,18 @@
 ﻿namespace MIMEMultipart
 
 module Generator = // Exposing generateAttachmentString.
-  open AttachmentR
-  open System
-  open System.Text
+  open Ancillary   // For (/=), nl.
+  open AttachmentR // For AttachmentR.
+  open System      // For Convert, Random, String.
+  open System.Text // For StringBuilder.
   open System.Text.RegularExpressions
-
-  let private nl = "\r\n"
 
   let private generateBoundary (r:Random) =
       let next () = r.Next ()
       let nextR m n = r.Next (m,n)
       let nextS = next >> string
       let (n,x) = 37,69 // 37 is completely arbitrary; 69 is documented: min and max lengths of boundary.
-      let m = nextR n x
+      let m = nextR n x // Length of the boundary we'll generate.
       let rec generate a = if String.length a < m then generate (a + nextS ()) else a
       let b = generate ""
        in if b.Length > x then b.Substring (0, x-1) else b

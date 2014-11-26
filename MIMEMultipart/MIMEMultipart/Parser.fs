@@ -1,9 +1,10 @@
 ﻿namespace MIMEMultipart
 
 module Parser = // Exposing readStreamWithHeaders and readStreamWithoutHeaders.
-  open AttachmentR
-  open System.IO
-  open System.Text
+  open Ancillary   // For (/=), nl.
+  open AttachmentR // For AttachmentR.
+  open System.IO   // For StringReader, TextReader.
+  open System.Text // For StringBuilder.
   open System.Text.RegularExpressions
 
   let private readLine (tr:TextReader) =
@@ -35,7 +36,6 @@ module Parser = // Exposing readStreamWithHeaders and readStreamWithoutHeaders.
   /// <returns>Tuple of new Attachment and its associated boundary.</returns>
   /// <remarks>This method mutates tr.</remarks>
   let private digestHeaders tr =
-      let (/=) = (<>)
       let newAttachment = { ContentType=""; ContentID=""; OriginalEncoding=""; IsByteArray=false; Bytes=[||]; Text=""; Attachments=[] }
       let rec f s a b =
           match s with
@@ -75,18 +75,22 @@ module Parser = // Exposing readStreamWithHeaders and readStreamWithoutHeaders.
           | Some s when s=terminationLine -> sb.ToString()
           | Some s -> sb.AppendLine s |> ignore
                       buildBody sb (readLine tr)
+      let assemble a b body =
+          match b with
+          | Some s -> { a with Text=body; Attachments=readStreamWithoutHeaders (new StringReader (body)) b }
+          | None   -> match a.OriginalEncoding.ToLower() with
+                      | "base64" -> { a with Bytes=decodeBase64 (body.Replace(nl, "")) }
+                      | "quoted-printable" -> { a with Text=decodeQP body }
+                      | _ -> { a with Text=body }
+      let read tr =
+          let (a,b) = digestHeaders tr
+          let body = buildBody (new StringBuilder ()) (readLine tr)
+           in assemble a b body
 
       skipToBoundary ()
 
       [ while tr.Peek() > -1 do
-          let (a,b) = digestHeaders tr
-          let body = buildBody (new StringBuilder ()) (readLine tr)
-           in yield match b with
-                    | Some s -> { a with Text=body; Attachments=readStreamWithoutHeaders (new StringReader (body)) b }
-                    | None   -> match a.OriginalEncoding.ToLower() with
-                                | "base64" -> { a with Bytes=decodeBase64 (body.Replace("\r\n", "")) }
-                                | "quoted-printable" -> { a with Text=decodeQP body }
-                                | _ -> { a with Text=body } ]
+          yield read tr ]
 
   let readStreamWithHeaders (tr:TextReader) b =
       let line = tr.ReadLine() + unfold tr
