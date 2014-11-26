@@ -28,7 +28,7 @@ namespace UsageTest
 				foreach (var x in a.Attachments)
 					SaveAttachment(x);
 			else
-				if (IsByteArray(a))
+				if (a.IsByteArray)
 					File.WriteAllBytes(fileName(a), a.Bytes);
 				else if (HasBody(a))
 					File.WriteAllText(fileName(a), a.Text);
@@ -43,11 +43,6 @@ namespace UsageTest
 		private static bool HasAttachments(Attachment a)
 		{
 			return a.Attachments != null && a.Attachments.Any();
-		}
-
-		private static bool IsByteArray(Attachment a)
-		{
-			return a.Bytes != null;
 		}
 
 		private static bool HasBody(Attachment a)
