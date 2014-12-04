@@ -1,6 +1,6 @@
 ﻿namespace MIMEMultipart
 
-module Generator = // Exposing generateAttachmentString.
+module internal Generator = // Exposing generateAttachmentString.
   open Ancillary   // For (/=), nl.
   open AttachmentR // For AttachmentR.
   open System      // For Convert, Random, String.

@@ -1,6 +1,6 @@
 ﻿namespace MIMEMultipart
 
-module Parser = // Exposing readStreamWithHeaders and readStreamWithoutHeaders.
+module internal Parser = // Exposing readStreamWithHeaders and readStreamWithoutHeaders.
   open Ancillary   // For (/=), nl.
   open AttachmentR // For AttachmentR.
   open System.IO   // For StringReader, TextReader.
